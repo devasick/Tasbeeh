@@ -1,0 +1,48 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+
+# build outputs
+dist/
+web-build/
+build/
+
+# debug
+npm-debug.*
+yarn-debug.log*
+yarn-error.log*
+
+# macOS
+.DS_Store
+
+# Android / iOS signing keys (very important to ignore)
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro bundler
+.metro-health-check*
+
+# Logs
+logs
+*.log
+
+# temp files
+*.orig.*
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo

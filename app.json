@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Tasbeeh Counter Pro",
+    "slug": "tasbeeh-counter-pro",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f7df800a-3d9a-43c4-8dc0-a7e6bd9dcb50"
+      }
+    },
+    "owner": "devzaheens-organization"
+  }
+}
