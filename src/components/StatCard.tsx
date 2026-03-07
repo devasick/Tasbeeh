@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Theme } from '../theme/theme';
+import { colors } from '../theme/colors';
 
 interface StatCardProps {
   title: string;
@@ -17,15 +18,15 @@ export const StatCard: React.FC<StatCardProps> = ({
   theme,
 }) => {
   return (
-    <View style={[styles.card, { backgroundColor: theme.card }]}>
-      <Text style={[styles.title, { color: theme.textSecondary }]}>
+    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.textMuted }]}>
         {title}
       </Text>
-      <Text style={[styles.value, { color: theme.text }]}>
+      <Text style={[styles.value, { color: colors.gold }]}>
         {value}
       </Text>
       {subtitle && (
-        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
           {subtitle}
         </Text>
       )}

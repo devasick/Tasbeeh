@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Dhikr } from '../types';
 import { useTheme } from '../theme/theme';
+import { colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 
 interface DhikrCardProps {
@@ -15,48 +16,48 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({ dhikr, onPress }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
       onPress={() => onPress(dhikr)}
       activeOpacity={0.7}
     >
       {/* Arabic Text */}
-      <Text style={[styles.arabicText, { color: theme.text }]}>
+      <Text style={[styles.arabicText, { color: colors.text }]}>
         {dhikr.arabicText}
       </Text>
 
       {/* Transliteration */}
-      <Text style={[styles.transliteration, { color: theme.primary }]}>
+      <Text style={[styles.transliteration, { color: colors.goldLight }]}>
         {dhikr.transliteration}
       </Text>
 
       {/* Meaning */}
-      <Text style={[styles.meaning, { color: theme.textSecondary }]}>
+      <Text style={[styles.meaning, { color: colors.textMuted }]}>
         {dhikr.meaning}
       </Text>
 
       {/* Recommended Count Badge */}
-      <View style={[styles.badge, { backgroundColor: theme.primary }]}>
-        <Text style={styles.badgeText}>
+      <View style={[styles.badge, { backgroundColor: colors.gold }]}>
+        <Text style={[styles.badgeText, { color: colors.background }]}>
           {dhikr.recommendedCount}x
         </Text>
       </View>
 
       {/* Hadith Reference Section */}
-      <View style={[styles.hadithSection, { borderTopColor: theme.border }]}>
-        <Text style={[styles.hadithLabel, { color: theme.textSecondary }]}>
+      <View style={[styles.hadithSection, { borderTopColor: colors.border }]}>
+        <Text style={[styles.hadithLabel, { color: colors.textMuted }]}>
           📖 Hadith Reference:
         </Text>
-        <Text style={[styles.hadithText, { color: theme.textSecondary }]} numberOfLines={2}>
+        <Text style={[styles.hadithText, { color: colors.textMuted }]} numberOfLines={2}>
           {dhikr.hadithReference}
         </Text>
-        <Text style={[styles.hadithSource, { color: theme.primary }]}>
+        <Text style={[styles.hadithSource, { color: colors.gold }]}>
           {dhikr.hadithSource}
         </Text>
       </View>
 
       {/* Tap Indicator */}
       <View style={styles.tapIndicator}>
-        <Text style={[styles.tapText, { color: theme.primary }]}>
+        <Text style={[styles.tapText, { color: colors.gold }]}>
           Tap to start counting →
         </Text>
       </View>

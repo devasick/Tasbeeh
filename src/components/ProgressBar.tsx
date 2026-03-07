@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Theme } from '../theme/theme';
+import { colors } from '../theme/colors';
 
 interface ProgressBarProps {
   current: number;
@@ -19,18 +20,18 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={[styles.track, { backgroundColor: theme.border }]}>
+      <View style={[styles.track, { backgroundColor: colors.border }]}>
         <View
           style={[
             styles.fill,
             {
               width: `${progress}%`,
-              backgroundColor: color,
+              backgroundColor: colors.gold,
             },
           ]}
         />
       </View>
-      <Text style={[styles.text, { color: theme.textSecondary }]}>
+      <Text style={[styles.text, { color: colors.textMuted }]}>
         {current} / {goal}
       </Text>
     </View>

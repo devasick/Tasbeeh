@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../theme/theme';
+import { colors } from '../theme/colors';
 import { Button } from '../components/Button';
 import { ProgressBar } from '../components/ProgressBar';
 import { useRoute, RouteProp } from '@react-navigation/native';
@@ -32,6 +33,27 @@ export const CounterScreen: React.FC = () => {
   // Dhikr-specific state
   const [dhikrCount, setDhikrCount] = useState(0);
   const isDhikrMode = selectedDhikr !== undefined;
+
+  // Pulsing animation for counter ring
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Start pulsing animation loop
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1.0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   // Animate counter increment
   const animateIncrement = () => {
@@ -94,16 +116,16 @@ export const CounterScreen: React.FC = () => {
     const progressPercentage = Math.min((dhikrCount / selectedDhikr.recommendedCount) * 100, 100);
     
     return (
-      <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Dhikr Header */}
         <View style={styles.dhikrHeader}>
-          <Text style={[styles.dhikrArabic, { color: theme.text }]}>
+          <Text style={[styles.dhikrArabic, { color: colors.text }]}>
             {selectedDhikr.arabicText}
           </Text>
-          <Text style={[styles.dhikrTransliteration, { color: theme.primary }]}>
+          <Text style={[styles.dhikrTransliteration, { color: colors.goldLight }]}>
             {selectedDhikr.transliteration}
           </Text>
-          <Text style={[styles.dhikrMeaning, { color: theme.textSecondary }]}>
+          <Text style={[styles.dhikrMeaning, { color: colors.textMuted }]}>
             {selectedDhikr.meaning}
           </Text>
         </View>
@@ -114,7 +136,16 @@ export const CounterScreen: React.FC = () => {
           onPress={handleIncrement}
           activeOpacity={0.9}
         >
-          <View style={styles.counterCircle}>
+          <Animated.View 
+            style={[
+              styles.counterCircle,
+              { 
+                borderColor: colors.gold,
+                borderWidth: 4,
+                transform: [{ scale: pulseAnim }],
+              }
+            ]}
+          >
             <Animated.View
               style={[
                 styles.countContainer,
@@ -123,17 +154,17 @@ export const CounterScreen: React.FC = () => {
                 },
               ]}
             >
-              <Text style={[styles.count, { color: theme.primary }]}>
+              <Text style={[styles.count, { color: colors.gold }]}>
                 {dhikrCount.toLocaleString()}
               </Text>
-              <Text style={[styles.goalText, { color: theme.textSecondary }]}>
+              <Text style={[styles.goalText, { color: colors.textMuted }]}>
                 / {selectedDhikr.recommendedCount}
               </Text>
-              <Text style={[styles.tapHint, { color: theme.textSecondary }]}>
+              <Text style={[styles.tapHint, { color: colors.textMuted }]}>
                 Tap to count
               </Text>
             </Animated.View>
-          </View>
+          </Animated.View>
         </TouchableOpacity>
 
         {/* Progress Bar */}
@@ -141,23 +172,23 @@ export const CounterScreen: React.FC = () => {
           <ProgressBar
             current={dhikrCount}
             goal={selectedDhikr.recommendedCount}
-            color={theme.primary}
+            color={colors.gold}
             theme={theme}
           />
-          <Text style={[styles.percentageText, { color: theme.textSecondary }]}>
+          <Text style={[styles.percentageText, { color: colors.textMuted }]}>
             {progressPercentage.toFixed(0)}% Complete
           </Text>
         </View>
 
         {/* Hadith Reference Section */}
-        <View style={[styles.hadithBox, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <Text style={[styles.hadithLabel, { color: theme.primary }]}>
+        <View style={[styles.hadithBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.hadithLabel, { color: colors.goldLight }]}>
             📖 Hadith Reference
           </Text>
-          <Text style={[styles.hadithText, { color: theme.textSecondary }]}>
+          <Text style={[styles.hadithText, { color: colors.textMuted }]}>
             {selectedDhikr.hadithReference}
           </Text>
-          <Text style={[styles.hadithSource, { color: theme.primary }]}>
+          <Text style={[styles.hadithSource, { color: colors.gold }]}>
             {selectedDhikr.hadithSource}
           </Text>
         </View>
@@ -207,12 +238,12 @@ export const CounterScreen: React.FC = () => {
   // Regular Counter Mode (existing code)
   if (!currentCounter) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>
             No counter selected
           </Text>
-          <Text style={[styles.emptySubtext, { color: theme.textSecondary }]}>
+          <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
             Create a counter in the Counters tab
           </Text>
         </View>
@@ -225,14 +256,14 @@ export const CounterScreen: React.FC = () => {
     : 0;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.counterName, { color: theme.text }]}>
+        <Text style={[styles.counterName, { color: colors.goldLight }]}>
           {currentCounter.name}
         </Text>
         {currentCounter.goal && (
-          <Text style={[styles.goalText, { color: theme.textSecondary }]}>
+          <Text style={[styles.goalText, { color: colors.textMuted }]}>
             Goal: {currentCounter.goal.toLocaleString()}
           </Text>
         )}
@@ -244,7 +275,16 @@ export const CounterScreen: React.FC = () => {
         onPress={handleIncrement}
         activeOpacity={0.9}
       >
-        <View style={styles.counterCircle}>
+        <Animated.View 
+          style={[
+            styles.counterCircle,
+            { 
+              borderColor: colors.gold,
+              borderWidth: 4,
+              transform: [{ scale: pulseAnim }],
+            }
+          ]}
+        >
           <Animated.View
             style={[
               styles.countContainer,
@@ -253,14 +293,14 @@ export const CounterScreen: React.FC = () => {
               },
             ]}
           >
-            <Text style={[styles.count, { color: currentCounter.color }]}>
+            <Text style={[styles.count, { color: colors.gold }]}>
               {currentCounter.currentCount.toLocaleString()}
             </Text>
-            <Text style={[styles.tapHint, { color: theme.textSecondary }]}>
+            <Text style={[styles.tapHint, { color: colors.textMuted }]}>
               Tap to count
             </Text>
           </Animated.View>
-        </View>
+        </Animated.View>
       </TouchableOpacity>
 
       {/* Progress Bar */}
@@ -269,10 +309,10 @@ export const CounterScreen: React.FC = () => {
           <ProgressBar
             current={currentCounter.currentCount}
             goal={currentCounter.goal}
-            color={currentCounter.color}
+            color={colors.gold}
             theme={theme}
           />
-          <Text style={[styles.percentageText, { color: theme.textSecondary }]}>
+          <Text style={[styles.percentageText, { color: colors.textMuted }]}>
             {progressPercentage.toFixed(0)}% Complete
           </Text>
         </View>
@@ -308,10 +348,10 @@ export const CounterScreen: React.FC = () => {
           ]}
         >
           <Text style={styles.celebrationEmoji}>🎉</Text>
-          <Text style={[styles.celebrationText, { color: theme.text }]}>
+          <Text style={[styles.celebrationText, { color: colors.goldLight }]}>
             Goal Reached!
           </Text>
-          <Text style={[styles.celebrationSubtext, { color: theme.textSecondary }]}>
+          <Text style={[styles.celebrationSubtext, { color: colors.text }]}>
             {currentCounter.currentCount} counts completed
           </Text>
         </Animated.View>

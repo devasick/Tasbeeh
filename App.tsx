@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AppProvider, useApp } from './src/context/AppContext';
 import { useTheme } from './src/theme/theme';
+import { colors } from './src/theme/colors';
 import { CounterScreen } from './src/screens/CounterScreen';
 import { CountersScreen } from './src/screens/CountersScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
@@ -23,19 +24,19 @@ const AppNavigator: React.FC = () => {
 
   return (
     <NavigationContainer>
-      <StatusBar style={settings.darkMode === true ? 'light' : 'dark'} />
+      <StatusBar style="light" backgroundColor={colors.background} />
       <Tab.Navigator
             screenOptions={{
               tabBarStyle: {
-          backgroundColor: theme.card,
-          borderTopColor: theme.border,
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
           paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 8,
           height: (insets.bottom > 0 ? insets.bottom : 8) + 60,
           },
-          tabBarActiveTintColor: theme.primary,
-          tabBarInactiveTintColor: theme.textSecondary,
+          tabBarActiveTintColor: colors.gold,
+          tabBarInactiveTintColor: colors.textMuted,
           tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
@@ -45,15 +46,16 @@ const AppNavigator: React.FC = () => {
           paddingVertical: 4,
           },
           headerStyle: {
-            backgroundColor: theme.card,
-            borderBottomColor: theme.border,
+            backgroundColor: colors.background,
+            borderBottomColor: colors.border,
             borderBottomWidth: 1,
           },
           headerTitleStyle: {
             fontWeight: 'bold',
             fontSize: 18,
-            color: theme.text,
+            color: colors.goldLight,
           },
+          headerTintColor: colors.gold,
           headerShadowVisible: false,
         }}
       >

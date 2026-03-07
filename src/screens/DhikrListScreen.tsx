@@ -5,6 +5,7 @@ import { DhikrCard } from '../components/DhikrCard';
 import { PREDEFINED_DHIKR } from '../data/dhikrData';
 import { Dhikr } from '../types';
 import { useTheme } from '../theme/theme';
+import { colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 
 type RootStackParamList = {
@@ -27,10 +28,10 @@ export const DhikrListScreen: React.FC = () => {
 
   const renderHeader = () => (
     <View style={styles.header}>
-      <Text style={[styles.headerTitle, { color: theme.text }]}>
+      <Text style={[styles.headerTitle, { color: colors.goldLight }]}>
         📿 Authentic Dhikr
       </Text>
-      <Text style={[styles.headerSubtitle, { color: theme.textSecondary }]}>
+      <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
         Select a dhikr to start counting with Hadith references
       </Text>
     </View>
@@ -41,7 +42,7 @@ export const DhikrListScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={PREDEFINED_DHIKR}
         renderItem={renderDhikrItem}

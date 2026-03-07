@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Theme } from '../theme/theme';
+import { colors } from '../theme/colors';
 
 interface CounterCardProps {
   name: string;
@@ -23,32 +24,32 @@ export const CounterCard: React.FC<CounterCardProps> = ({
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.card }]}
+      style={[styles.card, { backgroundColor: colors.surface }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.header}>
-        <View style={[styles.colorDot, { backgroundColor: color }]} />
-        <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>
+        <View style={[styles.colorDot, { backgroundColor: colors.gold }]} />
+        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
           {name}
         </Text>
       </View>
       
-      <Text style={[styles.count, { color: theme.text }]}>
+      <Text style={[styles.count, { color: colors.gold }]}>
         {count.toLocaleString()}
       </Text>
       
       {goal && (
         <View style={styles.progressContainer}>
-          <View style={[styles.progressTrack, { backgroundColor: theme.border }]}>
+          <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.progressFill,
-                { width: `${progress}%`, backgroundColor: color },
+                { width: `${progress}%`, backgroundColor: colors.gold },
               ]}
             />
           </View>
-          <Text style={[styles.goalText, { color: theme.textSecondary }]}>
+          <Text style={[styles.goalText, { color: colors.textMuted }]}>
             Goal: {goal.toLocaleString()}
           </Text>
         </View>

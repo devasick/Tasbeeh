@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../theme/theme';
+import { colors } from '../theme/colors';
 
 export const SettingsScreen: React.FC = () => {
   const { settings, updateSettings } = useApp();
@@ -16,7 +17,7 @@ export const SettingsScreen: React.FC = () => {
 
   const renderSection = (title: string, content: React.ReactNode) => (
     <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>
         {title}
       </Text>
       {content}
@@ -29,13 +30,13 @@ export const SettingsScreen: React.FC = () => {
     onToggle: (value: boolean) => void,
     description?: string
   ) => (
-    <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+    <View style={[styles.settingRow, { backgroundColor: colors.surface }]}>
       <View style={styles.settingInfo}>
-        <Text style={[styles.settingLabel, { color: theme.text }]}>
+        <Text style={[styles.settingLabel, { color: colors.text }]}>
           {label}
         </Text>
         {description && (
-          <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
+          <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
             {description}
           </Text>
         )}
@@ -43,19 +44,19 @@ export const SettingsScreen: React.FC = () => {
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{ false: theme.border, true: theme.primary }}
+        trackColor={{ false: colors.border, true: colors.gold }}
         thumbColor="#FFFFFF"
       />
     </View>
   );
 
   const renderVolumeControl = () => (
-    <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+    <View style={[styles.settingRow, { backgroundColor: colors.surface }]}>
       <View style={styles.settingInfo}>
-        <Text style={[styles.settingLabel, { color: theme.text }]}>
+        <Text style={[styles.settingLabel, { color: colors.text }]}>
           Sound Volume
         </Text>
-        <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
+        <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
           {Math.round(settings.soundVolume * 100)}%
         </Text>
       </View>
@@ -67,7 +68,7 @@ export const SettingsScreen: React.FC = () => {
               styles.volumeButton,
               {
                 backgroundColor:
-                  settings.soundVolume === vol ? theme.primary : theme.border,
+                  settings.soundVolume === vol ? colors.gold : colors.border,
               },
             ]}
             onPress={() => updateSettings({ soundVolume: vol })}
@@ -77,7 +78,7 @@ export const SettingsScreen: React.FC = () => {
                 styles.volumeButtonText,
                 {
                   color:
-                    settings.soundVolume === vol ? '#FFFFFF' : theme.textSecondary,
+                    settings.soundVolume === vol ? colors.background : colors.textMuted,
                 },
               ]}
             >
@@ -90,8 +91,8 @@ export const SettingsScreen: React.FC = () => {
   );
 
   const renderThemeSelector = () => (
-    <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
-      <Text style={[styles.settingLabel, { color: theme.text }]}>
+    <View style={[styles.settingRow, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.settingLabel, { color: colors.text }]}>
         Theme
       </Text>
       <View style={styles.themeButtons}>
@@ -104,7 +105,7 @@ export const SettingsScreen: React.FC = () => {
               style={[
                 styles.themeButton,
                 {
-                  backgroundColor: isSelected ? theme.primary : theme.border,
+                  backgroundColor: isSelected ? colors.gold : colors.border,
                 },
               ]}
               onPress={() => updateSettings({ darkMode: mode })}
@@ -113,7 +114,7 @@ export const SettingsScreen: React.FC = () => {
                 style={[
                   styles.themeButtonText,
                   {
-                    color: isSelected ? '#FFFFFF' : theme.textSecondary,
+                    color: isSelected ? colors.background : colors.textMuted,
                   },
                 ]}
               >
@@ -128,7 +129,7 @@ export const SettingsScreen: React.FC = () => {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
     >
       {renderSection(
@@ -163,13 +164,13 @@ export const SettingsScreen: React.FC = () => {
       )}
 
       <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: theme.textSecondary }]}>
+        <Text style={[styles.footerText, { color: colors.textMuted }]}>
           Tasbeeh Counter v1.0.0
         </Text>
-        <Text style={[styles.footerText, { color: theme.textSecondary }]}>
+        <Text style={[styles.footerText, { color: colors.textMuted }]}>
           Made with ❤️ for the community
         </Text>
-         <Text style={[styles.footerText, { color: theme.textSecondary }]}>
+         <Text style={[styles.footerText, { color: colors.textMuted }]}>
           Developed by  Ahamed
         </Text>
       </View>

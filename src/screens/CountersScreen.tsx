@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../theme/theme';
+import { colors } from '../theme/colors';
 import { CounterCard } from '../components/CounterCard';
 import { Button } from '../components/Button';
 import { Counter, PRESET_GOALS, DEFAULT_COLORS } from '../types';
@@ -111,13 +112,13 @@ export const CountersScreen: React.FC = () => {
         {isSelected && (
           <View style={styles.counterActions}>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: theme.primary }]}
+              style={[styles.actionButton, { backgroundColor: colors.gold }]}
               onPress={() => openEditModal(item)}
             >
-              <Text style={styles.actionButtonText}>✏️ Edit</Text>
+              <Text style={[styles.actionButtonText, { color: colors.background }]}>✏️ Edit</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: theme.danger }]}
+              style={[styles.actionButton, { backgroundColor: colors.danger }]}
               onPress={() => handleDelete(item)}
             >
               <Text style={styles.actionButtonText}>🗑️ Delete</Text>
@@ -129,7 +130,7 @@ export const CountersScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={counters}
         renderItem={renderCounter}
@@ -137,10 +138,10 @@ export const CountersScreen: React.FC = () => {
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
               No counters yet
             </Text>
-            <Text style={[styles.emptySubtext, { color: theme.textSecondary }]}>
+            <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
               Create your first counter below
             </Text>
           </View>
@@ -164,25 +165,25 @@ export const CountersScreen: React.FC = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.goldLight }]}>
               {editingCounter ? 'Edit Counter' : 'New Counter'}
             </Text>
 
             {/* Name Input */}
-            <Text style={[styles.label, { color: theme.textSecondary }]}>
+            <Text style={[styles.label, { color: colors.text }]}>
               Counter Name
             </Text>
             <TextInput
-              style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
               value={name}
               onChangeText={setName}
               placeholder="e.g., SubhanAllah, Alhamdulillah"
-              placeholderTextColor={theme.textSecondary}
+              placeholderTextColor={colors.textMuted}
             />
 
             {/* Color Selection */}
-            <Text style={[styles.label, { color: theme.textSecondary }]}>
+            <Text style={[styles.label, { color: colors.text }]}>
               Color
             </Text>
             <View style={styles.colorGrid}>
@@ -200,55 +201,55 @@ export const CountersScreen: React.FC = () => {
             </View>
 
             {/* Goal Selection */}
-            <Text style={[styles.label, { color: theme.textSecondary }]}>
+            <Text style={[styles.label, { color: colors.text }]}>
               Goal (Optional)
             </Text>
             <View style={styles.goalGrid}>
               <TouchableOpacity
                 style={[
                   styles.goalOption,
-                  { backgroundColor: theme.background, borderColor: theme.border },
-                  selectedGoal === null && [styles.goalOptionSelected, { borderColor: theme.primary }],
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  selectedGoal === null && [styles.goalOptionSelected, { borderColor: colors.gold }],
                 ]}
                 onPress={() => setSelectedGoal(null)}
               >
-                <Text style={[styles.goalText, { color: theme.text }]}>None</Text>
+                <Text style={[styles.goalText, { color: colors.text }]}>None</Text>
               </TouchableOpacity>
               {PRESET_GOALS.map((goal) => (
                 <TouchableOpacity
                   key={goal}
                   style={[
                     styles.goalOption,
-                    { backgroundColor: theme.background, borderColor: theme.border },
-                    selectedGoal === goal && [styles.goalOptionSelected, { borderColor: theme.primary }],
+                    { backgroundColor: colors.card, borderColor: colors.border },
+                    selectedGoal === goal && [styles.goalOptionSelected, { borderColor: colors.gold }],
                   ]}
                   onPress={() => {
                     setSelectedGoal(goal);
                     setCustomGoal('');
                   }}
                 >
-                  <Text style={[styles.goalText, { color: theme.text }]}>{goal}</Text>
+                  <Text style={[styles.goalText, { color: colors.text }]}>{goal}</Text>
                 </TouchableOpacity>
               ))}
               <TouchableOpacity
                 style={[
                   styles.goalOption,
-                  { backgroundColor: theme.background, borderColor: theme.border },
-                  selectedGoal === -1 && [styles.goalOptionSelected, { borderColor: theme.primary }],
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  selectedGoal === -1 && [styles.goalOptionSelected, { borderColor: colors.gold }],
                 ]}
                 onPress={() => setSelectedGoal(-1)}
               >
-                <Text style={[styles.goalText, { color: theme.text }]}>Custom</Text>
+                <Text style={[styles.goalText, { color: colors.text }]}>Custom</Text>
               </TouchableOpacity>
             </View>
 
             {selectedGoal === -1 && (
               <TextInput
-                style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
+                style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
                 value={customGoal}
                 onChangeText={setCustomGoal}
                 placeholder="Enter custom goal"
-                placeholderTextColor={theme.textSecondary}
+                placeholderTextColor={colors.textMuted}
                 keyboardType="number-pad"
               />
             )}

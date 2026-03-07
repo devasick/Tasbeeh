@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Theme } from '../theme/theme';
+import { colors } from '../theme/colors';
 
 interface ButtonProps {
   title: string;
@@ -22,25 +23,26 @@ export const Button: React.FC<ButtonProps> = ({
   theme,
 }) => {
   const getBackgroundColor = () => {
-    if (disabled) return theme.border;
+    if (disabled) return colors.border;
     switch (variant) {
       case 'primary':
-        return theme.primary;
+        return colors.gold;
       case 'danger':
-        return theme.danger;
+        return colors.danger;
       case 'secondary':
-        return theme.textSecondary;
+        return colors.surface;
       case 'outline':
         return 'transparent';
       default:
-        return theme.primary;
+        return colors.gold;
     }
   };
 
   const getTextColor = () => {
-    if (disabled) return theme.textSecondary;
-    if (variant === 'outline') return theme.primary;
-    return '#FFFFFF';
+    if (disabled) return colors.textMuted;
+    if (variant === 'outline') return colors.gold;
+    if (variant === 'secondary') return colors.text;
+    return colors.background;
   };
 
   const getPadding = () => {
@@ -73,7 +75,7 @@ export const Button: React.FC<ButtonProps> = ({
           backgroundColor: getBackgroundColor(),
           ...getPadding(),
           borderWidth: variant === 'outline' ? 2 : 0,
-          borderColor: variant === 'outline' ? theme.primary : 'transparent',
+          borderColor: variant === 'outline' ? colors.gold : 'transparent',
         },
       ]}
       onPress={onPress}

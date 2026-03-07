@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../theme/theme';
+import { colors } from '../theme/colors';
 import { StatCard } from '../components/StatCard';
 import { formatDate, formatNumber } from '../utils/helpers';
 import { CountHistory } from '../types';
@@ -20,24 +21,24 @@ export const HistoryScreen: React.FC = () => {
     const isGoalReached = item.goal !== null && item.count >= item.goal;
 
     return (
-      <View style={[styles.historyItem, { backgroundColor: theme.card }]}>
+      <View style={[styles.historyItem, { backgroundColor: colors.surface }]}>
         <View style={styles.historyHeader}>
-          <Text style={[styles.historyName, { color: theme.text }]}>
+          <Text style={[styles.historyName, { color: colors.text }]}>
             {item.counterName}
           </Text>
           {isGoalReached && <Text style={styles.goalBadge}>🎯 Goal</Text>}
         </View>
         <View style={styles.historyDetails}>
-          <Text style={[styles.historyCount, { color: theme.primary }]}>
+          <Text style={[styles.historyCount, { color: colors.gold }]}>
             {formatNumber(item.count)} counts
           </Text>
           {item.goal && (
-            <Text style={[styles.historyGoal, { color: theme.textSecondary }]}>
+            <Text style={[styles.historyGoal, { color: colors.textMuted }]}>
               Goal: {formatNumber(item.goal)}
             </Text>
           )}
         </View>
-        <Text style={[styles.historyDate, { color: theme.textSecondary }]}>
+        <Text style={[styles.historyDate, { color: colors.textMuted }]}>
           {formatDate(item.completedAt)}
         </Text>
       </View>
@@ -46,11 +47,11 @@ export const HistoryScreen: React.FC = () => {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
     >
       {/* Statistics Overview */}
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>
+      <Text style={[styles.sectionTitle, { color: colors.goldLight }]}>
         Overview
       </Text>
       
@@ -100,27 +101,27 @@ export const HistoryScreen: React.FC = () => {
       </View>
 
       {statistics.mostUsedCounter && (
-        <View style={[styles.highlightCard, { backgroundColor: theme.card }]}>
-          <Text style={[styles.highlightLabel, { color: theme.textSecondary }]}>
+        <View style={[styles.highlightCard, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.highlightLabel, { color: colors.textMuted }]}>
             Most Used Counter
           </Text>
-          <Text style={[styles.highlightValue, { color: theme.primary }]}>
+          <Text style={[styles.highlightValue, { color: colors.gold }]}>
             {statistics.mostUsedCounter}
           </Text>
         </View>
       )}
 
       {/* History List */}
-      <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 30 }]}>
+      <Text style={[styles.sectionTitle, { color: colors.goldLight, marginTop: 30 }]}>
         Recent History
       </Text>
 
       {history.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>
             No history yet
           </Text>
-          <Text style={[styles.emptySubtext, { color: theme.textSecondary }]}>
+          <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
             Complete a goal to see it here
           </Text>
         </View>
