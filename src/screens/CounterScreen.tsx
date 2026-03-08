@@ -12,7 +12,7 @@ import { useApp } from '../context/AppContext';
 import { useTheme } from '../theme/theme';
 import { colors } from '../theme/colors';
 import { Button } from '../components/Button';
-import { ProgressBar } from '../components/ProgressBar';
+import CounterRing from '../components/CounterRing';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { Dhikr } from '../types';
 
@@ -26,50 +26,12 @@ export const CounterScreen: React.FC = () => {
   const route = useRoute<CounterScreenRouteProp>();
   const selectedDhikr = route.params?.selectedDhikr;
   
-  const [scaleAnim] = useState(new Animated.Value(1));
   const [celebrationAnim] = useState(new Animated.Value(0));
   const [showCelebration, setShowCelebration] = useState(false);
   
   // Dhikr-specific state
   const [dhikrCount, setDhikrCount] = useState(0);
   const isDhikrMode = selectedDhikr !== undefined;
-
-  // Pulsing animation for counter ring
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    // Start pulsing animation loop
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.05,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1.0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
-
-  // Animate counter increment
-  const animateIncrement = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
 
   // Check for goal completion
   useEffect(() => {
@@ -100,7 +62,6 @@ export const CounterScreen: React.FC = () => {
     } else {
       incrementCounter();
     }
-    animateIncrement();
   };
 
   const handleReset = () => {
@@ -113,8 +74,6 @@ export const CounterScreen: React.FC = () => {
 
   // Dhikr Mode Rendering
   if (isDhikrMode && selectedDhikr) {
-    const progressPercentage = Math.min((dhikrCount / selectedDhikr.recommendedCount) * 100, 100);
-    
     return (
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Dhikr Header */}
@@ -131,53 +90,13 @@ export const CounterScreen: React.FC = () => {
         </View>
 
         {/* Main Counter Display */}
-        <TouchableOpacity
-          style={styles.counterArea}
-          onPress={handleIncrement}
-          activeOpacity={0.9}
-        >
-          <Animated.View 
-            style={[
-              styles.counterCircle,
-              { 
-                borderColor: colors.gold,
-                borderWidth: 4,
-                transform: [{ scale: pulseAnim }],
-              }
-            ]}
-          >
-            <Animated.View
-              style={[
-                styles.countContainer,
-                {
-                  transform: [{ scale: scaleAnim }],
-                },
-              ]}
-            >
-              <Text style={[styles.count, { color: colors.gold }]}>
-                {dhikrCount.toLocaleString()}
-              </Text>
-              <Text style={[styles.goalText, { color: colors.textMuted }]}>
-                / {selectedDhikr.recommendedCount}
-              </Text>
-              <Text style={[styles.tapHint, { color: colors.textMuted }]}>
-                Tap to count
-              </Text>
-            </Animated.View>
-          </Animated.View>
-        </TouchableOpacity>
-
-        {/* Progress Bar */}
-        <View style={styles.progressSection}>
-          <ProgressBar
-            current={dhikrCount}
-            goal={selectedDhikr.recommendedCount}
-            color={colors.gold}
-            theme={theme}
+        <View style={styles.counterArea}>
+          <CounterRing
+            count={dhikrCount}
+            target={selectedDhikr.recommendedCount}
+            onPress={handleIncrement}
+            dhikrName={selectedDhikr.transliteration}
           />
-          <Text style={[styles.percentageText, { color: colors.textMuted }]}>
-            {progressPercentage.toFixed(0)}% Complete
-          </Text>
         </View>
 
         {/* Hadith Reference Section */}
@@ -251,10 +170,6 @@ export const CounterScreen: React.FC = () => {
     );
   }
 
-  const progressPercentage = currentCounter.goal
-    ? Math.min((currentCounter.currentCount / currentCounter.goal) * 100, 100)
-    : 0;
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
@@ -270,53 +185,14 @@ export const CounterScreen: React.FC = () => {
       </View>
 
       {/* Main Counter Display */}
-      <TouchableOpacity
-        style={styles.counterArea}
-        onPress={handleIncrement}
-        activeOpacity={0.9}
-      >
-        <Animated.View 
-          style={[
-            styles.counterCircle,
-            { 
-              borderColor: colors.gold,
-              borderWidth: 4,
-              transform: [{ scale: pulseAnim }],
-            }
-          ]}
-        >
-          <Animated.View
-            style={[
-              styles.countContainer,
-              {
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <Text style={[styles.count, { color: colors.gold }]}>
-              {currentCounter.currentCount.toLocaleString()}
-            </Text>
-            <Text style={[styles.tapHint, { color: colors.textMuted }]}>
-              Tap to count
-            </Text>
-          </Animated.View>
-        </Animated.View>
-      </TouchableOpacity>
-
-      {/* Progress Bar */}
-      {currentCounter.goal && (
-        <View style={styles.progressSection}>
-          <ProgressBar
-            current={currentCounter.currentCount}
-            goal={currentCounter.goal}
-            color={colors.gold}
-            theme={theme}
-          />
-          <Text style={[styles.percentageText, { color: colors.textMuted }]}>
-            {progressPercentage.toFixed(0)}% Complete
-          </Text>
-        </View>
-      )}
+      <View style={styles.counterArea}>
+        <CounterRing
+          count={currentCounter.currentCount}
+          target={currentCounter.goal}
+          onPress={handleIncrement}
+          dhikrName={currentCounter.name}
+        />
+      </View>
 
       {/* Action Buttons */}
       <View style={styles.actions}>

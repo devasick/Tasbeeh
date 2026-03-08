@@ -165,7 +165,7 @@ export const SettingsScreen: React.FC = () => {
 
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.textMuted }]}>
-          Tasbeeh Counter v1.0.0
+          Tasbeeh Counter 1.0.2
         </Text>
         <Text style={[styles.footerText, { color: colors.textMuted }]}>
           Made with ❤️ for the community

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tasbeeh Counter Pro",
     "slug": "tasbeeh-counter-pro",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "assetBundlePatterns": [
       "**/*"
     ],
