@@ -3,9 +3,43 @@
     "name": "Tasbeeh Counter Pro",
     "slug": "tasbeeh-counter-pro",
     "version": "1.0.2",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A1A0F",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A1A0F"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tasbeehcounterpro.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A1A0F"
+      },
+      "package": "com.tasbeehcounterpro.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "backgroundColor": "#0A1A0F",
+      "themeColor": "#C9A84C",
+      "name": "Tasbeeh Counter Pro",
+      "shortName": "Tasbeeh",
+      "description": "Islamic Dhikr Counter with Authentic Hadith References",
+      "orientation": "portrait",
+      "display": "standalone",
+      "startUrl": "/",
+      "scope": "/",
+      "lang": "en",
+      "dir": "ltr"
+    },
     "extra": {
       "eas": {
         "projectId": "f7df800a-3d9a-43c4-8dc0-a7e6bd9dcb50"

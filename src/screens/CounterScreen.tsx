@@ -15,6 +15,7 @@ import { Button } from '../components/Button';
 import CounterRing from '../components/CounterRing';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { Dhikr } from '../types';
+import { saveDhikrCount, loadDhikrCount } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +33,24 @@ export const CounterScreen: React.FC = () => {
   // Dhikr-specific state
   const [dhikrCount, setDhikrCount] = useState(0);
   const isDhikrMode = selectedDhikr !== undefined;
+
+  // Load dhikr count on mount
+  useEffect(() => {
+    if (isDhikrMode && selectedDhikr) {
+      const loadCount = async () => {
+        const savedCount = await loadDhikrCount(selectedDhikr.id);
+        setDhikrCount(savedCount);
+      };
+      loadCount();
+    }
+  }, [isDhikrMode, selectedDhikr?.id]);
+
+  // Save dhikr count whenever it changes
+  useEffect(() => {
+    if (isDhikrMode && selectedDhikr && dhikrCount > 0) {
+      saveDhikrCount(selectedDhikr.id, dhikrCount);
+    }
+  }, [dhikrCount, isDhikrMode, selectedDhikr?.id]);
 
   // Check for goal completion
   useEffect(() => {

@@ -46,3 +46,5 @@ logs
 
 # TypeScript
 *.tsbuildinfo
+# Local Netlify folder
+.netlify

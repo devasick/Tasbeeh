@@ -60,12 +60,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Load data on mount
   useEffect(() => {
     const loadData = async () => {
+      console.log('Loading app data...');
       const [loadedCounters, loadedHistory, loadedSettings] = await Promise.all([
         loadCounters(),
         loadHistory(),
         loadSettings(),
       ]);
 
+      console.log('Loaded counters:', loadedCounters);
+      console.log('Loaded history:', loadedHistory);
+      
       setCounters(loadedCounters);
       setHistory(loadedHistory);
       setSettings(loadedSettings || DEFAULT_SETTINGS);
@@ -87,6 +91,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Save counters whenever they change
   useEffect(() => {
     if (counters.length > 0) {
+      console.log('Saving counters:', counters);
       saveCounters(counters);
     }
   }, [counters]);

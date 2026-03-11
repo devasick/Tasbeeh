@@ -15,10 +15,12 @@ import { colors } from '../theme/colors';
 import { CounterCard } from '../components/CounterCard';
 import { Button } from '../components/Button';
 import { Counter, PRESET_GOALS, DEFAULT_COLORS } from '../types';
+import { useNavigation } from '@react-navigation/native';
 
 export const CountersScreen: React.FC = () => {
   const { counters, currentCounter, setCurrentCounter, addCounter, updateCounter, deleteCounter, settings } = useApp();
   const theme = useTheme(settings);
+  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingCounter, setEditingCounter] = useState<Counter | null>(null);
   const [name, setName] = useState('');
@@ -106,7 +108,10 @@ export const CountersScreen: React.FC = () => {
           count={item.currentCount}
           goal={item.goal}
           color={item.color}
-          onPress={() => setCurrentCounter(item)}
+          onPress={() => {
+            setCurrentCounter(item);
+            navigation.navigate('Counter' as never);
+          }}
           theme={theme}
         />
         {isSelected && (
