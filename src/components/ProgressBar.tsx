@@ -1,60 +1,34 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Theme } from '../theme/theme';
-import { colors } from '../theme/colors';
+import React, { useEffect, useRef } from 'react';
+import { View, Animated, StyleSheet } from 'react-native';
+import { useTheme } from '../theme/theme';
 
-interface ProgressBarProps {
-  current: number;
-  goal: number;
-  color: string;
-  theme: Theme;
-}
+/** Animated horizontal progress, `value` from 0 to 1. */
+export const ProgressBar: React.FC<{ value: number; color?: string; height?: number }> = ({ value, color, height = 8 }) => {
+  const { c } = useTheme();
+  const anim = useRef(new Animated.Value(value)).current;
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
-  current,
-  goal,
-  color,
-  theme,
-}) => {
-  const progress = Math.min((current / goal) * 100, 100);
+  useEffect(() => {
+    Animated.timing(anim, { toValue: Math.max(0, Math.min(1, value)), duration: 300, useNativeDriver: false }).start();
+  }, [value, anim]);
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.track, { backgroundColor: colors.border }]}>
-        <View
-          style={[
-            styles.fill,
-            {
-              width: `${progress}%`,
-              backgroundColor: colors.gold,
-            },
-          ]}
-        />
-      </View>
-      <Text style={[styles.text, { color: colors.textMuted }]}>
-        {current} / {goal}
-      </Text>
+    <View
+      style={[styles.track, { backgroundColor: c.track, height, borderRadius: height / 2 }]}
+      accessibilityRole="progressbar"
+      accessibilityValue={{ min: 0, max: 100, now: Math.round(value * 100) }}
+    >
+      <Animated.View
+        style={{
+          height: '100%',
+          borderRadius: height / 2,
+          backgroundColor: color || c.primary,
+          width: anim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+        }}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  track: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  fill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  text: {
-    fontSize: 14,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
+  track: { width: '100%', overflow: 'hidden' },
 });

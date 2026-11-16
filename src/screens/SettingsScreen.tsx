@@ -1,257 +1,241 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Switch,
-  TouchableOpacity,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, Alert, Linking } from 'react-native';
 import { useApp } from '../context/AppContext';
-import { useTheme } from '../theme/theme';
-import { colors } from '../theme/colors';
+import { useTheme, space } from '../theme/theme';
+import { useT, LANGUAGES } from '../i18n';
+import { Reminder } from '../types';
+import { requestNotificationPermission } from '../utils/notifications';
+import { Screen, Card, SectionTitle, Segmented, SettingRow, Divider, Chip, Stepper, Sheet, IconButton, styles as ui } from '../components/ui';
+import { Button } from '../components/Button';
+
+const GOALS = [100, 300, 500, 1000];
 
 export const SettingsScreen: React.FC = () => {
-  const { settings, updateSettings } = useApp();
-  const theme = useTheme(settings);
+  const { state, dispatch } = useApp();
+  const { c, arabic } = useTheme();
+  const { t, formatNumber, formatClock, weekdayShort } = useT();
+  const { settings } = state;
+  const set = (s: Partial<typeof settings>) => dispatch({ type: 'updateSettings', settings: s });
+  const [draft, setDraft] = useState<Reminder | null>(null);
 
-  const renderSection = (title: string, content: React.ReactNode) => (
-    <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>
-        {title}
-      </Text>
-      {content}
-    </View>
-  );
+  const ensureNotifications = async () => {
+    if (await requestNotificationPermission()) return true;
+    Alert.alert(t('notifDeniedTitle'), t('notifDeniedBody'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('openSettings'), onPress: () => Linking.openSettings() },
+    ]);
+    return false;
+  };
 
-  const renderSettingRow = (
-    label: string,
-    value: boolean,
-    onToggle: (value: boolean) => void,
-    description?: string
-  ) => (
-    <View style={[styles.settingRow, { backgroundColor: colors.surface }]}>
-      <View style={styles.settingInfo}>
-        <Text style={[styles.settingLabel, { color: colors.text }]}>
-          {label}
-        </Text>
-        {description && (
-          <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
-            {description}
-          </Text>
-        )}
-      </View>
-      <Switch
-        value={value}
-        onValueChange={onToggle}
-        trackColor={{ false: colors.border, true: colors.gold }}
-        thumbColor="#FFFFFF"
-      />
-    </View>
-  );
+  const newReminder = (): Reminder => ({
+    id: `r-${Date.now()}`,
+    hour: 7,
+    minute: 0,
+    days: [0, 1, 2, 3, 4, 5, 6],
+    message: t('defaultReminder'),
+    enabled: true,
+  });
 
-  const renderVolumeControl = () => (
-    <View style={[styles.settingRow, { backgroundColor: colors.surface }]}>
-      <View style={styles.settingInfo}>
-        <Text style={[styles.settingLabel, { color: colors.text }]}>
-          Sound Volume
-        </Text>
-        <Text style={[styles.settingDescription, { color: colors.textMuted }]}>
-          {Math.round(settings.soundVolume * 100)}%
-        </Text>
-      </View>
-      <View style={styles.volumeButtons}>
-        {[0, 0.25, 0.5, 0.75, 1].map((vol) => (
-          <TouchableOpacity
-            key={vol}
-            style={[
-              styles.volumeButton,
-              {
-                backgroundColor:
-                  settings.soundVolume === vol ? colors.gold : colors.border,
-              },
-            ]}
-            onPress={() => updateSettings({ soundVolume: vol })}
-          >
-            <Text
-              style={[
-                styles.volumeButtonText,
-                {
-                  color:
-                    settings.soundVolume === vol ? colors.background : colors.textMuted,
-                },
-              ]}
-            >
-              {vol === 0 ? '🔇' : vol === 1 ? '🔊' : '🔉'}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
+  const saveReminder = async () => {
+    if (!draft) return;
+    if (draft.days.length === 0) return Alert.alert(t('pickDaysTitle'), t('pickDaysBody'));
+    if (draft.enabled && !(await ensureNotifications())) return;
+    dispatch({ type: 'saveReminder', reminder: { ...draft, message: draft.message.trim() || t('defaultReminder') } });
+    setDraft(null);
+  };
 
-  const renderThemeSelector = () => (
-    <View style={[styles.settingRow, { backgroundColor: colors.surface }]}>
-      <Text style={[styles.settingLabel, { color: colors.text }]}>
-        Theme
-      </Text>
-      <View style={styles.themeButtons}>
-        {(['auto', true, false] as const).map((mode) => {
-          const label = mode === 'auto' ? 'Auto' : mode ? 'Dark' : 'Light';
-          const isSelected = settings.darkMode === mode;
-          return (
-            <TouchableOpacity
-              key={String(mode)}
-              style={[
-                styles.themeButton,
-                {
-                  backgroundColor: isSelected ? colors.gold : colors.border,
-                },
-              ]}
-              onPress={() => updateSettings({ darkMode: mode })}
-            >
-              <Text
-                style={[
-                  styles.themeButtonText,
-                  {
-                    color: isSelected ? colors.background : colors.textMuted,
-                  },
-                ]}
-              >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  );
+  const toggleReminder = async (r: Reminder, on: boolean) => {
+    if (on && !(await ensureNotifications())) return;
+    dispatch({ type: 'saveReminder', reminder: { ...r, enabled: on } });
+  };
+
+  const deleteReminder = () => {
+    if (!draft) return;
+    Alert.alert(t('deleteReminderTitle'), t('deleteReminderBody'), [
+      { text: t('cancel'), style: 'cancel' },
+      {
+        text: t('delete'),
+        style: 'destructive',
+        onPress: () => {
+          dispatch({ type: 'deleteReminder', id: draft.id });
+          setDraft(null);
+        },
+      },
+    ]);
+  };
+
+  const dayLabel = (days: number[]) =>
+    days.length === 7 ? t('everyDay') : [...days].sort().map((d) => weekdayShort(d)).join(', ');
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.content}
-    >
-      {renderSection(
-        'FEEDBACK',
-        <>
-          {renderSettingRow(
-            'Vibration',
-            settings.vibrationEnabled,
-            (value) => updateSettings({ vibrationEnabled: value }),
-            'Feel a vibration on each count'
-          )}
-          {renderSettingRow(
-            'Sound',
-            settings.soundEnabled,
-            (value) => updateSettings({ soundEnabled: value }),
-            'Play a sound on each count'
-          )}
-          {settings.soundEnabled && renderVolumeControl()}
-        </>
-      )}
+    <Screen title={t('tabSettings')}>
+      <SectionTitle>{t('appearance')}</SectionTitle>
+      <Card>
+        <Text style={[ui.label, { color: c.textMuted }]}>{t('theme')}</Text>
+        <Segmented
+          value={settings.theme}
+          onChange={(theme) => set({ theme })}
+          options={[
+            { value: 'system', label: t('themeSystem') },
+            { value: 'light', label: t('themeLight') },
+            { value: 'dark', label: t('themeDark') },
+          ]}
+        />
+        <Text style={[ui.label, { color: c.textMuted, marginTop: space.lg }]}>{t('counterStyle')}</Text>
+        <Segmented
+          value={settings.counterStyle}
+          onChange={(counterStyle) => set({ counterStyle })}
+          options={[
+            { value: 'ring', label: t('styleRing') },
+            { value: 'digital', label: t('styleDigital') },
+          ]}
+        />
+        <Text style={[ui.label, { color: c.textMuted, marginTop: space.lg }]}>{t('language')}</Text>
+        <Segmented value={settings.language} onChange={(language) => set({ language })} options={LANGUAGES} />
+        <View style={[styles.row, { marginTop: space.lg }]}>
+          <Text style={[ui.label, { color: c.textMuted, flex: 1, marginBottom: 0 }]}>{t('arabicSize')}</Text>
+          <Stepper
+            value={`${Math.round(settings.arabicScale * 100)}%`}
+            minusLabel={t('smaller')}
+            plusLabel={t('larger')}
+            onMinus={() => set({ arabicScale: Math.max(0.8, +(settings.arabicScale - 0.1).toFixed(1)) })}
+            onPlus={() => set({ arabicScale: Math.min(1.6, +(settings.arabicScale + 0.1).toFixed(1)) })}
+          />
+        </View>
+        <Text style={[arabic(26), { marginTop: space.sm }]}>سُبْحَانَ اللهِ وَبِحَمْدِهِ</Text>
+      </Card>
 
-      {renderSection('APPEARANCE', renderThemeSelector())}
+      <SectionTitle>{t('counting')}</SectionTitle>
+      <Card style={{ paddingVertical: space.sm }}>
+        <SettingRow icon="vibrate" label={t('vibration')} description={t('vibrationDesc')} value={settings.vibration} onValueChange={(vibration) => set({ vibration })} />
+        <Divider />
+        <SettingRow icon="volume-high" label={t('sound')} description={t('soundDesc')} value={settings.sound} onValueChange={(sound) => set({ sound })} />
+        {settings.sound && (
+          <View style={{ paddingBottom: space.sm }}>
+            <Segmented
+              value={settings.volume}
+              onChange={(volume) => set({ volume })}
+              options={[
+                { value: 0.3, label: t('volLow') },
+                { value: 0.6, label: t('volMedium') },
+                { value: 1, label: t('volHigh') },
+              ]}
+            />
+          </View>
+        )}
+        <Divider />
+        <SettingRow icon="cellphone-lock" label={t('keepAwake')} description={t('keepAwakeDesc')} value={settings.keepAwake} onValueChange={(keepAwake) => set({ keepAwake })} />
+        <Divider />
+        <SettingRow icon="autorenew" label={t('autoReset')} description={t('autoResetDesc')} value={settings.autoReset} onValueChange={(autoReset) => set({ autoReset })} />
+      </Card>
 
-      {renderSection(
-        'COUNTER BEHAVIOR',
-        renderSettingRow(
-          'Auto-reset after goal',
-          settings.autoResetAfterGoal,
-          (value) => updateSettings({ autoResetAfterGoal: value }),
-          'Automatically reset counter when goal is reached'
-        )
-      )}
+      <SectionTitle>{t('dailyGoal')}</SectionTitle>
+      <Card>
+        <View style={styles.wrap}>
+          {GOALS.map((g) => (
+            <Chip key={g} label={formatNumber(g)} selected={settings.dailyGoal === g} onPress={() => set({ dailyGoal: g })} />
+          ))}
+        </View>
+        <View style={styles.row}>
+          <Text style={{ color: c.textMuted, flex: 1 }}>{t('dailyGoalDesc')}</Text>
+          <Stepper
+            value={formatNumber(settings.dailyGoal)}
+            minusLabel={t('smaller')}
+            plusLabel={t('larger')}
+            onMinus={() => set({ dailyGoal: Math.max(10, settings.dailyGoal - 50) })}
+            onPlus={() => set({ dailyGoal: Math.min(100000, settings.dailyGoal + 50) })}
+          />
+        </View>
+      </Card>
 
-      <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: colors.textMuted }]}>
-          Tasbeeh Counter 1.0.2
-        </Text>
-        <Text style={[styles.footerText, { color: colors.textMuted }]}>
-          Made with ❤️ for the community
-        </Text>
-         <Text style={[styles.footerText, { color: colors.textMuted }]}>
-          Developed by  Ahamed
-        </Text>
-      </View>
-    </ScrollView>
+      <SectionTitle right={<IconButton icon="plus-circle" label={t('addReminder')} onPress={() => setDraft(newReminder())} color={c.primary} />}>
+        {t('reminders')}
+      </SectionTitle>
+      <Card style={{ paddingVertical: space.sm }}>
+        {state.reminders.length === 0 ? (
+          <View style={{ paddingVertical: space.md }}>
+            <Text style={{ color: c.textMuted, marginBottom: space.md, lineHeight: 20 }}>{t('noReminders')}</Text>
+            <Button title={t('addReminder')} icon="bell-plus-outline" variant="outline" onPress={() => setDraft(newReminder())} />
+          </View>
+        ) : (
+          state.reminders.map((r, i) => (
+            <View key={r.id}>
+              {i > 0 && <Divider />}
+              <SettingRow
+                icon="bell-outline"
+                label={`${formatClock(r.hour, r.minute)} · ${dayLabel(r.days)}`}
+                description={r.message}
+                value={r.enabled}
+                onValueChange={(on) => toggleReminder(r, on)}
+              />
+              <Button title={t('edit')} variant="ghost" size="small" onPress={() => setDraft(r)} style={{ alignSelf: 'flex-start', minHeight: 36 }} />
+            </View>
+          ))
+        )}
+      </Card>
+
+      <SectionTitle>{t('about')}</SectionTitle>
+      <Card style={{ paddingVertical: space.sm }}>
+        <SettingRow icon="information-outline" label="Tasbeeh Counter Pro" description={t('aboutDesc')} />
+        <Divider />
+        <SettingRow icon="school-outline" label={t('showIntro')} onPress={() => dispatch({ type: 'restartOnboarding' })} />
+      </Card>
+
+      <Sheet visible={!!draft} onClose={() => setDraft(null)} title={t('reminder')}>
+        {draft && (
+          <>
+            <Text style={[ui.label, { color: c.textMuted }]}>{t('time')}</Text>
+            <View style={[styles.row, { justifyContent: 'center', marginBottom: space.md }]}>
+              <Stepper
+                value={String(draft.hour).padStart(2, '0')}
+                minusLabel={t('earlier')}
+                plusLabel={t('later')}
+                onMinus={() => setDraft({ ...draft, hour: (draft.hour + 23) % 24 })}
+                onPlus={() => setDraft({ ...draft, hour: (draft.hour + 1) % 24 })}
+              />
+              <Text style={{ color: c.text, fontSize: 22, fontWeight: '700' }}>:</Text>
+              <Stepper
+                value={String(draft.minute).padStart(2, '0')}
+                minusLabel={t('earlier')}
+                plusLabel={t('later')}
+                onMinus={() => setDraft({ ...draft, minute: (draft.minute + 55) % 60 })}
+                onPlus={() => setDraft({ ...draft, minute: (draft.minute + 5) % 60 })}
+              />
+            </View>
+            <Text style={[ui.label, { color: c.textMuted }]}>{t('days')}</Text>
+            <View style={styles.wrap}>
+              {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+                <Chip
+                  key={d}
+                  label={weekdayShort(d)}
+                  selected={draft.days.includes(d)}
+                  onPress={() =>
+                    setDraft({ ...draft, days: draft.days.includes(d) ? draft.days.filter((x) => x !== d) : [...draft.days, d] })
+                  }
+                />
+              ))}
+            </View>
+            <Text style={[ui.label, { color: c.textMuted }]}>{t('message')}</Text>
+            <TextInput
+              value={draft.message}
+              onChangeText={(message) => setDraft({ ...draft, message })}
+              maxLength={120}
+              accessibilityLabel={t('message')}
+              placeholderTextColor={c.textMuted}
+              style={[ui.input, { color: c.text, borderColor: c.border, backgroundColor: c.surface }]}
+            />
+            <Button title={t('save')} onPress={saveReminder} />
+            {state.reminders.some((r) => r.id === draft.id) && (
+              <Button title={t('delete')} variant="ghost" icon="trash-can-outline" onPress={deleteReminder} style={{ marginTop: space.sm }} />
+            )}
+          </>
+        )}
+      </Sheet>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  section: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 12,
-    letterSpacing: 0.5,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  settingInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 13,
-  },
-  volumeButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  volumeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  volumeButtonText: {
-    fontSize: 16,
-  },
-  themeButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  themeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  themeButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  footer: {
-    marginTop: 40,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    marginBottom: 4,
-  },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: space.sm },
 });
