@@ -4,14 +4,20 @@ A beautiful and feature-rich Tasbeeh (Dhikr) counter application built with Reac
 
 ## Features
 
-- 📱 **Counter Functionality**: Large, easy-to-read counter with haptic and sound feedback
-- 🎯 **Goal Setting**: Set custom or predefined target counts (33, 99, 100, 500, 1000)
-- 📊 **Multiple Counters**: Create and manage multiple named counters for different dhikr
-- 📈 **Statistics**: Track your progress with detailed history and statistics
-- 🎨 **Customizable**: Dark/light mode, color themes, and personalization options
-- 💾 **Persistent Storage**: Your progress is automatically saved
-- 🔇 **Flexible Feedback**: Toggle sound and vibration independently
-- 🌙 **Islamic Design**: Clean, minimal, and distraction-free interface
+- **Tasbeeh counter**: ring or digital style, haptics, optional sound, undo, reset with confirmation, targets (33, 99, 100, 1000, custom or none), celebration at the target, optional keep-screen-on
+- **Dhikr collection**: 12 authentic dhikr with Arabic, transliteration, meaning and hadith reference, each with its own counter; add your own dhikr
+- **Daily goals and statistics**: daily goal, streaks, consistency, weekly/monthly/yearly charts, most recited dhikr, full session history with delete
+- **Prayer times**: offline calculation (adhan) from device location or a chosen city, 12 calculation methods, Standard/Hanafi Asr, optional alerts before each prayer
+- **Qibla compass**: live heading with calibration hints and clear permission/sensor errors
+- **Reminders**: local notifications on chosen days and times with your own message
+- **Personalization**: light/dark/system theme, Arabic font size (Amiri), English, Bahasa Indonesia and Türkçe
+- Works offline, no ads, data stays on the device (AsyncStorage; data from older versions is migrated automatically)
+
+## Development
+
+- `npm test` runs the unit tests for state, migration, statistics and prayer/Qibla maths
+- `npm run typecheck` runs TypeScript
+- The `android/` folder is committed. Do not run `expo prebuild --clean`: it would regenerate it and could change the package name. After adding native modules, rebuild with `npm run android`.
 
 ## Installation
 

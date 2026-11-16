@@ -1,105 +1,31 @@
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, AudioPlayer } from 'expo-audio';
 
-let clickSound: Audio.Sound | null = null;
-let goalSound: Audio.Sound | null = null;
+let click: AudioPlayer | null = null;
+let complete: AudioPlayer | null = null;
 
-// Initialize sounds
-export const initSounds = async (): Promise<void> => {
+const play = (kind: 'click' | 'complete', volume: number) => {
   try {
-    // For now, we'll use system sounds
-    // In production, you would load custom sound files
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-    });
+    if (kind === 'click') click = click || createAudioPlayer(require('../../assets/sounds/click.wav'));
+    else complete = complete || createAudioPlayer(require('../../assets/sounds/complete.wav'));
+    const player = kind === 'click' ? click! : complete!;
+    player.volume = volume;
+    player.seekTo(0).catch(() => {});
+    player.play();
   } catch (error) {
-    console.error('Error initializing sounds:', error);
+    console.warn('Sound playback failed:', error);
   }
 };
 
-// Play click sound
-export const playClickSound = async (volume: number): Promise<void> => {
-  // Sound files not included - add click.mp3 to assets folder to enable
-  // Uncomment below when sound file is available:
-  /*
-  try {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../../assets/click.mp3'),
-      { volume, shouldPlay: true }
-    );
-    
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
-      }
-    });
-  } catch (error) {
-    console.error('Error playing click sound:', error);
-  }
-  */
+// Fire-and-forget: counting must never wait on feedback.
+export const tapFeedback = (vibration: boolean, sound: boolean, volume: number) => {
+  if (vibration) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  if (sound) play('click', volume);
 };
 
-// Play goal completion sound
-export const playGoalSound = async (volume: number): Promise<void> => {
-  // Sound files not included - add goal.mp3 to assets folder to enable
-  // Uncomment below when sound file is available:
-  /*
-  try {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../../assets/goal.mp3'),
-      { volume, shouldPlay: true }
-    );
-    
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
-      }
-    });
-  } catch (error) {
-    console.error('Error playing goal sound:', error);
-  }
-  */
+export const completeFeedback = (vibration: boolean, sound: boolean, volume: number) => {
+  if (vibration) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+  if (sound) play('complete', volume);
 };
 
-// Trigger haptic feedback
-export const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' = 'light'): Promise<void> => {
-  try {
-    switch (type) {
-      case 'light':
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        break;
-      case 'medium':
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        break;
-      case 'heavy':
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        break;
-    }
-  } catch (error) {
-    console.error('Error triggering haptic:', error);
-  }
-};
-
-// Trigger success haptic
-export const triggerSuccessHaptic = async (): Promise<void> => {
-  try {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  } catch (error) {
-    console.error('Error triggering success haptic:', error);
-  }
-};
-
-// Cleanup
-export const cleanupSounds = async (): Promise<void> => {
-  try {
-    if (clickSound) {
-      await clickSound.unloadAsync();
-    }
-    if (goalSound) {
-      await goalSound.unloadAsync();
-    }
-  } catch (error) {
-    console.error('Error cleaning up sounds:', error);
-  }
-};
+export const lightHaptic = () => Haptics.selectionAsync().catch(() => {});

@@ -1,16 +1,20 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Theme } from '../theme/theme';
-import { colors } from '../theme/colors';
+import { Pressable, Text, StyleSheet, ActivityIndicator, View, ViewStyle } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme, radius } from '../theme/theme';
+
+type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'outline';
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost';
   size?: 'small' | 'medium' | 'large';
+  icon?: IconName;
   disabled?: boolean;
   loading?: boolean;
-  theme: Theme;
+  style?: ViewStyle;
+  accessibilityLabel?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -18,96 +22,71 @@ export const Button: React.FC<ButtonProps> = ({
   onPress,
   variant = 'primary',
   size = 'medium',
+  icon,
   disabled = false,
   loading = false,
-  theme,
+  style,
+  accessibilityLabel,
 }) => {
-  const getBackgroundColor = () => {
-    if (disabled) return colors.border;
-    switch (variant) {
-      case 'primary':
-        return colors.gold;
-      case 'danger':
-        return colors.danger;
-      case 'secondary':
-        return colors.surface;
-      case 'outline':
-        return 'transparent';
-      default:
-        return colors.gold;
-    }
-  };
-
-  const getTextColor = () => {
-    if (disabled) return colors.textMuted;
-    if (variant === 'outline') return colors.gold;
-    if (variant === 'secondary') return colors.text;
-    return colors.background;
-  };
-
-  const getPadding = () => {
-    switch (size) {
-      case 'small':
-        return { paddingVertical: 8, paddingHorizontal: 16 };
-      case 'large':
-        return { paddingVertical: 16, paddingHorizontal: 32 };
-      default:
-        return { paddingVertical: 12, paddingHorizontal: 24 };
-    }
-  };
-
-  const getFontSize = () => {
-    switch (size) {
-      case 'small':
-        return 14;
-      case 'large':
-        return 18;
-      default:
-        return 16;
-    }
-  };
+  const { c } = useTheme();
+  const bg = {
+    primary: c.primary,
+    secondary: c.surfaceAlt,
+    danger: c.danger,
+    outline: 'transparent',
+    ghost: 'transparent',
+  }[variant];
+  const fg = {
+    primary: c.onPrimary,
+    secondary: c.text,
+    danger: c.surface,
+    outline: c.primary,
+    ghost: c.primary,
+  }[variant];
+  const pad = { small: 8, medium: 12, large: 16 }[size];
+  const font = { small: 14, medium: 15, large: 17 }[size];
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        {
-          backgroundColor: getBackgroundColor(),
-          ...getPadding(),
-          borderWidth: variant === 'outline' ? 2 : 0,
-          borderColor: variant === 'outline' ? colors.gold : 'transparent',
-        },
-      ]}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityState={{ disabled: disabled || loading }}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      android_ripple={{ color: c.primarySoft }}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          backgroundColor: bg,
+          paddingVertical: pad,
+          borderColor: variant === 'outline' ? c.primary : 'transparent',
+          opacity: disabled ? 0.45 : pressed ? 0.85 : 1,
+        },
+        style,
+      ]}
     >
       {loading ? (
-        <ActivityIndicator color={getTextColor()} />
+        <ActivityIndicator color={fg} />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            {
-              color: getTextColor(),
-              fontSize: getFontSize(),
-            },
-          ]}
-        >
-          {title}
-        </Text>
+        <View style={styles.row}>
+          {icon && <MaterialCommunityIcons name={icon} size={font + 3} color={fg} style={{ marginRight: 6 }} />}
+          <Text style={[styles.text, { color: fg, fontSize: font }]}>{title}</Text>
+        </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 12,
+    minHeight: 48,
+    borderRadius: radius.pill,
+    borderWidth: 1.5,
+    paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  text: {
-    fontWeight: '600',
-  },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  text: { fontWeight: '600' },
 });

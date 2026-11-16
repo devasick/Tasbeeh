@@ -5,7 +5,7 @@
     "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#0A1A0F",
     "splash": {
       "image": "./assets/splash.png",
@@ -17,14 +17,32 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tasbeehcounterpro.app"
+      "bundleIdentifier": "com.tasbeehcounterpro.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your location is used on this device to calculate prayer times and the Qibla direction."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0A1A0F"
       },
-      "package": "com.tasbeehcounterpro.app"
+      "package": "com.zaheen.counter",
+      "permissions": [
+        "VIBRATE",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "POST_NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -45,6 +63,22 @@
         "projectId": "f7df800a-3d9a-43c4-8dc0-a7e6bd9dcb50"
       }
     },
-    "owner": "devzaheens-organization"
+    "owner": "devzaheens-organization",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Your location is used on this device to calculate prayer times and the Qibla direction."
+        }
+      ],
+      "expo-notifications",
+      "expo-font",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false
+        }
+      ]
+    ]
   }
 }

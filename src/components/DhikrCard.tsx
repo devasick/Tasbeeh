@@ -1,140 +1,98 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Dhikr } from '../types';
-import { useTheme } from '../theme/theme';
-import { colors } from '../theme/colors';
-import { useApp } from '../context/AppContext';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Dhikr, Progress } from '../types';
+import { useTheme, radius, space } from '../theme/theme';
+import { useT } from '../i18n';
+import { ProgressBar } from './ProgressBar';
+import { IconButton } from './ui';
 
 interface DhikrCardProps {
   dhikr: Dhikr;
-  onPress: (dhikr: Dhikr) => void;
+  progress: Progress;
+  active: boolean;
+  onPress: () => void;
+  onEdit?: () => void;
 }
 
-export const DhikrCard: React.FC<DhikrCardProps> = ({ dhikr, onPress }) => {
-  const { settings } = useApp();
-  const theme = useTheme(settings);
+export const DhikrCard: React.FC<DhikrCardProps> = ({ dhikr, progress, active, onPress, onEdit }) => {
+  const { c, arabic } = useTheme();
+  const { t, formatNumber } = useT();
+  const [open, setOpen] = useState(false);
+  const pct = progress.target ? Math.min(1, progress.count / progress.target) : 0;
 
   return (
-    <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
-      onPress={() => onPress(dhikr)}
-      activeOpacity={0.7}
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${dhikr.transliteration}. ${dhikr.meaning}. ${formatNumber(progress.count)}${progress.target ? ` / ${progress.target}` : ''}`}
+      accessibilityHint={t('startCounting')}
+      android_ripple={{ color: c.primarySoft }}
+      style={[styles.card, { backgroundColor: c.surface, borderColor: active ? c.primary : c.border }]}
     >
-      {/* Arabic Text */}
-      <Text style={[styles.arabicText, { color: colors.text }]}>
-        {dhikr.arabicText}
-      </Text>
+      <View style={styles.top}>
+        <View style={[styles.badge, { backgroundColor: c.accentSoft }]}>
+          <Text style={[styles.badgeText, { color: c.accent }]}>{dhikr.recommendedCount}×</Text>
+        </View>
+        {active && (
+          <View style={[styles.badge, { backgroundColor: c.primarySoft, marginLeft: 6 }]}>
+            <Text style={[styles.badgeText, { color: c.primary }]}>{t('counting')}</Text>
+          </View>
+        )}
+        <View style={{ flex: 1 }} />
+        {onEdit && <IconButton icon="pencil-outline" label={t('editDhikr')} onPress={onEdit} />}
+      </View>
 
-      {/* Transliteration */}
-      <Text style={[styles.transliteration, { color: colors.goldLight }]}>
-        {dhikr.transliteration}
-      </Text>
+      {dhikr.arabicText ? <Text style={[arabic(26), { marginVertical: 4 }]}>{dhikr.arabicText}</Text> : null}
+      <Text style={[styles.translit, { color: c.primary }]}>{dhikr.transliteration}</Text>
+      {dhikr.meaning ? <Text style={[styles.meaning, { color: c.textMuted }]}>{dhikr.meaning}</Text> : null}
 
-      {/* Meaning */}
-      <Text style={[styles.meaning, { color: colors.textMuted }]}>
-        {dhikr.meaning}
-      </Text>
-
-      {/* Recommended Count Badge */}
-      <View style={[styles.badge, { backgroundColor: colors.gold }]}>
-        <Text style={[styles.badgeText, { color: colors.background }]}>
-          {dhikr.recommendedCount}x
+      <View style={styles.progressRow}>
+        <View style={{ flex: 1, marginRight: 10 }}>
+          <ProgressBar value={pct} height={6} color={pct >= 1 ? c.accent : c.primary} />
+        </View>
+        <Text style={{ color: c.textMuted, fontSize: 13, fontWeight: '600' }}>
+          {formatNumber(progress.count)}
+          {progress.target ? ` / ${formatNumber(progress.target)}` : ''}
         </Text>
       </View>
 
-      {/* Hadith Reference Section */}
-      <View style={[styles.hadithSection, { borderTopColor: colors.border }]}>
-        <Text style={[styles.hadithLabel, { color: colors.textMuted }]}>
-          📖 Hadith Reference:
-        </Text>
-        <Text style={[styles.hadithText, { color: colors.textMuted }]} numberOfLines={2}>
-          {dhikr.hadithReference}
-        </Text>
-        <Text style={[styles.hadithSource, { color: colors.gold }]}>
-          {dhikr.hadithSource}
-        </Text>
-      </View>
-
-      {/* Tap Indicator */}
-      <View style={styles.tapIndicator}>
-        <Text style={[styles.tapText, { color: colors.gold }]}>
-          Tap to start counting →
-        </Text>
-      </View>
-    </TouchableOpacity>
+      {dhikr.hadithReference ? (
+        <>
+          <Pressable
+            onPress={() => setOpen(!open)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: open }}
+            hitSlop={8}
+            style={styles.refToggle}
+          >
+            <MaterialCommunityIcons name="book-open-variant" size={16} color={c.accent} />
+            <Text style={[styles.refLabel, { color: c.accent }]}>{t('reference')}</Text>
+            <MaterialCommunityIcons name={open ? 'chevron-up' : 'chevron-down'} size={18} color={c.accent} />
+          </Pressable>
+          {open && (
+            <View style={[styles.ref, { borderColor: c.border }]}>
+              <Text style={[styles.refText, { color: c.text }]}>{dhikr.hadithReference}</Text>
+              <Text style={[styles.refSource, { color: c.accent }]}>{dhikr.hadithSource}</Text>
+            </View>
+          )}
+        </>
+      ) : null}
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  arabicText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-    lineHeight: 48,
-  },
-  transliteration: {
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  meaning: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 12,
-    fontStyle: 'italic',
-  },
-  badge: {
-    alignSelf: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 12,
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  hadithSection: {
-    borderTopWidth: 1,
-    paddingTop: 12,
-    marginTop: 12,
-  },
-  hadithLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  hadithText: {
-    fontSize: 12,
-    lineHeight: 18,
-    marginBottom: 6,
-  },
-  hadithSource: {
-    fontSize: 11,
-    fontWeight: '600',
-    fontStyle: 'italic',
-  },
-  tapIndicator: {
-    marginTop: 12,
-    alignItems: 'center',
-  },
-  tapText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  card: { borderRadius: radius.lg, borderWidth: 1.5, padding: space.lg, marginBottom: space.md, overflow: 'hidden' },
+  top: { flexDirection: 'row', alignItems: 'center', minHeight: 32 },
+  badge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.pill },
+  badgeText: { fontSize: 12, fontWeight: '700' },
+  translit: { fontSize: 17, fontWeight: '700', textAlign: 'center' },
+  meaning: { fontSize: 14, textAlign: 'center', marginTop: 4, lineHeight: 20 },
+  progressRow: { flexDirection: 'row', alignItems: 'center', marginTop: space.md },
+  refToggle: { flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: space.md, minHeight: 32, gap: 4 },
+  refLabel: { fontSize: 13, fontWeight: '600' },
+  ref: { borderTopWidth: 1, marginTop: space.sm, paddingTop: space.sm },
+  refText: { fontSize: 13, lineHeight: 20 },
+  refSource: { fontSize: 12, fontWeight: '700', marginTop: 6 },
 });
